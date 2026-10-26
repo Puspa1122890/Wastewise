@@ -1,0 +1,417 @@
+[
+  {
+    "name": "dairy_fallback_size1",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 1,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 5.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "dairy_fallback_size2",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 2,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 2.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 4.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "dairy_fallback_size4",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 4,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 1.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 4.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "canned_fallback_size1_far_expiry",
+    "days_remaining": 100,
+    "category": "Canned Goods",
+    "household_size": 1,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 180.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 1.9777777777777779,
+    "expected_baseline_flag": false
+  },
+  {
+    "name": "canned_fallback_size3_near_expiry",
+    "days_remaining": 2,
+    "category": "Canned Goods",
+    "household_size": 3,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 60.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 7.2666666666666675,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "produce_two_items_still_fallback",
+    "days_remaining": 4,
+    "category": "Produce",
+    "household_size": 2,
+    "durations": [
+      3,
+      5
+    ],
+    "params": {},
+    "expected_usage_days": 1.5,
+    "expected_source": "fallback",
+    "expected_history_n": 2,
+    "expected_score": 4.0,
+    "expected_baseline_flag": false
+  },
+  {
+    "name": "produce_exactly_three_items_history",
+    "days_remaining": 4,
+    "category": "Produce",
+    "household_size": 2,
+    "durations": [
+      3,
+      5,
+      4
+    ],
+    "params": {},
+    "expected_usage_days": 4.0,
+    "expected_source": "history",
+    "expected_history_n": 3,
+    "expected_score": 4.0,
+    "expected_baseline_flag": false
+  },
+  {
+    "name": "meat_history_slow_household",
+    "days_remaining": 1,
+    "category": "Meat & Fish",
+    "household_size": 1,
+    "durations": [
+      6,
+      7,
+      5,
+      8
+    ],
+    "params": {},
+    "expected_usage_days": 6.5,
+    "expected_source": "history",
+    "expected_history_n": 4,
+    "expected_score": 8.784615384615385,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "bread_history_fast_household",
+    "days_remaining": 5,
+    "category": "Bread & Bakery",
+    "household_size": 3,
+    "durations": [
+      1,
+      2,
+      1,
+      1
+    ],
+    "params": {},
+    "expected_usage_days": 1.25,
+    "expected_source": "history",
+    "expected_history_n": 4,
+    "expected_score": 3.2,
+    "expected_baseline_flag": false
+  },
+  {
+    "name": "dairy_history_with_zero_day_use",
+    "days_remaining": 2,
+    "category": "Dairy",
+    "household_size": 2,
+    "durations": [
+      0,
+      0,
+      1
+    ],
+    "params": {},
+    "expected_usage_days": 0.3333333333333333,
+    "expected_source": "history",
+    "expected_history_n": 3,
+    "expected_score": 5.0,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "expired_item_negative_days",
+    "days_remaining": -2,
+    "category": "Dairy",
+    "household_size": 1,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 9.8,
+    "expected_baseline_flag": false
+  },
+  {
+    "name": "expires_today",
+    "days_remaining": 0,
+    "category": "Produce",
+    "household_size": 2,
+    "durations": [
+      3,
+      3,
+      3
+    ],
+    "params": {},
+    "expected_usage_days": 3.0,
+    "expected_source": "history",
+    "expected_history_n": 3,
+    "expected_score": 9.6,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "far_future",
+    "days_remaining": 60,
+    "category": "Other",
+    "household_size": 1,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 7.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 1.0,
+    "expected_baseline_flag": false
+  },
+  {
+    "name": "unknown_category_uses_defaults",
+    "days_remaining": 3,
+    "category": "Mystery",
+    "household_size": 2,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 3.5,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 4.371428571428572,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "history_window_truncates_to_20",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 1,
+    "durations": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30,
+      30
+    ],
+    "params": {},
+    "expected_usage_days": 23.0,
+    "expected_source": "history",
+    "expected_history_n": 20,
+    "expected_score": 8.078260869565218,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "min_history_1",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 2,
+    "durations": [
+      6
+    ],
+    "params": {
+      "min_history": 1
+    },
+    "expected_usage_days": 6.0,
+    "expected_source": "history",
+    "expected_history_n": 1,
+    "expected_score": 6.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "min_history_5_not_met",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 2,
+    "durations": [
+      6,
+      6,
+      6,
+      6
+    ],
+    "params": {
+      "min_history": 5
+    },
+    "expected_usage_days": 2.0,
+    "expected_source": "fallback",
+    "expected_history_n": 4,
+    "expected_score": 4.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "fallback_exponent_half",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 4,
+    "durations": [],
+    "params": {
+      "fallback_size_exponent": 0.5
+    },
+    "expected_usage_days": 2.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 4.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "fallback_exponent_zero",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 4,
+    "durations": [],
+    "params": {
+      "fallback_size_exponent": 0.0
+    },
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 5.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "default_scale_double",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 2,
+    "durations": [],
+    "params": {
+      "default_scale": 2.0
+    },
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 5.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "default_scale_half",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 2,
+    "durations": [],
+    "params": {
+      "default_scale": 0.5
+    },
+    "expected_usage_days": 1.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 4.6000000000000005,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "urgency_only_weights",
+    "days_remaining": 2,
+    "category": "Dairy",
+    "household_size": 1,
+    "durations": [],
+    "params": {
+      "w_urgency": 1.0,
+      "w_category": 0.0,
+      "w_mismatch": 0.0
+    },
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 8.0,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "mismatch_heavy_weights",
+    "days_remaining": 2,
+    "category": "Dairy",
+    "household_size": 1,
+    "durations": [],
+    "params": {
+      "w_urgency": 0.2,
+      "w_category": 0.2,
+      "w_mismatch": 0.6
+    },
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 6.4,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "baseline_lead_7",
+    "days_remaining": 6,
+    "category": "Dairy",
+    "household_size": 1,
+    "durations": [],
+    "params": {
+      "baseline_days": 7
+    },
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 3.4000000000000004,
+    "expected_baseline_flag": true
+  },
+  {
+    "name": "size_zero_treated_as_one",
+    "days_remaining": 3,
+    "category": "Dairy",
+    "household_size": 0,
+    "durations": [],
+    "params": {},
+    "expected_usage_days": 4.0,
+    "expected_source": "fallback",
+    "expected_history_n": 0,
+    "expected_score": 5.6000000000000005,
+    "expected_baseline_flag": true
+  }
+]
