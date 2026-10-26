@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Upload copies and zips made for the live host (they contain the host password)
+wastewise_upload/
+wastewise_upload.zip
+wastewise_host_upload.zip
+config_HOST_for_upload.php
+
+# Never commit real passwords. The local includes/config.php has none, so it is safe.
