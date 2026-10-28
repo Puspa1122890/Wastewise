@@ -1,0 +1,25 @@
+Pairwise AUC
+  PASS  perfect ranking gives 1.0
+  PASS  reversed ranking gives 0.0
+  PASS  ties count half
+
+No leakage from the future
+  PASS  history uses only outcomes strictly before the review day
+  PASS  an item's own outcome never enters the history used to score it
+  PASS  changing a FUTURE outcome does not change an earlier score
+
+Replay mechanics
+  PASS  candidate window: active from max(purchase, expiry-horizon) to min(outcome, expiry)
+  PASS  unknown and active items are never candidates
+  PASS  urgency-only weights reproduce the baseline exactly
+  PASS  both approaches get the same number of alerts (matched volume)
+
+Label-shuffle null test (the leakage check)
+        mean shuffled AUC: adaptive 0.502, baseline 0.504 (chance = 0.500)
+        real AUC: adaptive 0.719, baseline 0.661; highest shuffled adaptive 0.531
+  PASS  with outcomes assigned at random, neither approach beats chance
+
+Scoring reference versus shared vectors
+  PASS  scoring_ref reproduces tests/scoring_vectors.json
+
+Result: 12 passed, 0 failed

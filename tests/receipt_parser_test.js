@@ -133,5 +133,90 @@ off.forEach(([tags, expected]) => {
     test(JSON.stringify(tags) + ' -> ' + expected, () => assert.strictEqual(lib.categoryFromOffTags(tags), expected));
 });
 
+console.log('Real receipt with unit price column');
+test('unit price column, weight prefix and cash lines are handled', () => {
+    const text = [
+        'Kvittering', 'Udskevet: 23-10-2026 11:03:15',
+        '   1X ABRIKOS PASTE 400G   * 24,95   24,95',
+        '   1X PANGASUS STÆKS       * 34,95   34,95',
+        '   2X FULYA YOGHURT %2,5   * 15,00   30,00',
+        ' 0.18 CHILI FRISK 1 KILO   * 99,95   18,00',
+        '   1X KARTOFLER 5 KILO     * 24,95   24,95',
+        'Afrundet:                           -0,20',
+        'Total:                             232,50',
+        'Kontant DKK:                       250,00',
+        'Retur DKK:                         250,00',
+        '                                    17,50'
+    ].join('\n');
+    const rows = lib.parseReceipt(text, '2026-10-23');
+    assert.strictEqual(rows.length, 5);
+    assert.ok(rows.every(r => !/\*/.test(r.name)), 'no price column left in names');
+    assert.ok(!rows.some(r => /retur/i.test(r.name)), 'cash change line skipped');
+    const byName = n => rows.find(r => r.name.toLowerCase().indexOf(n) === 0);
+    assert.strictEqual(byName('fulya').quantity, 2);
+    assert.strictEqual(byName('fulya').price, 30);
+    assert.strictEqual(byName('pangasus').category, 'Meat & Fish');
+    assert.strictEqual(byName('chili').category, 'Produce');
+    assert.strictEqual(byName('chili').name.toLowerCase().indexOf('0.18'), -1);
+});
+
+console.log('Receipt text as read by OCR');
+test('OCR misreads of 1X and the unit price column are handled', () => {
+    const text = [
+        'IX ABRIKOS PASTE 4006 \u00ab 24,95 24,95',
+        '_ 1X KALA CHANA * 21,95 21,95',
+        'IX*KARTOFLER 5 KILO * 24,95 24,95',
+        '0.18 CHILI FRISK 1 KILO * 99,95 18,00'
+    ].join('\n');
+    const rows = lib.parseReceipt(text, '2026-10-23');
+    assert.strictEqual(rows.length, 4);
+    assert.ok(rows.every(r => !/[*\u00ab]/.test(r.name)), 'no price column left in names');
+    assert.strictEqual(rows[2].price, 24.95);
+    assert.strictEqual(rows[2].category, 'Produce');
+});
+
+test('junk characters from OCR are trimmed from names', () => {
+    const rows = lib.parseReceipt([
+        'Abrikos Paste 400G \u2014\u00bb 24,95',
+        'PANGASUS STAKS \u00abx 34,95',
+        'KALA CHANA \u00a9 x 21,95',
+        '7 0.18 CHILI FRISK 1 KILO. \u00bb 18,00',
+        "Ix'KARTOFLER 5 KILO * 24,95 24,95"
+    ].join('\n'), '2026-10-23');
+    assert.strictEqual(rows.length, 5);
+    const names = rows.map(r => r.name);
+    assert.ok(names.every(n => !/[\u00ab\u00bb\u00a9\u2014]/.test(n) && !/\sx$/i.test(n)), JSON.stringify(names));
+    assert.ok(names[3].toLowerCase().indexOf('chili') === 0, names[3]);
+    assert.ok(names[4].toLowerCase().indexOf('kartofler') === 0, names[4]);
+});
+
+test('spaces inside OCR prices are repaired', () => {
+    const rows = lib.parseReceipt(['RARSUKKER 18, 95', 'KRYDDERURTER 10, 00', 'CAPT. MORGAN 145, 95', 'TOTAL 202, 85'].join('\n'), '2026-10-26');
+    assert.strictEqual(rows.length, 3);
+    assert.strictEqual(rows[0].price, 18.95);
+    assert.strictEqual(rows[1].price, 10);
+    assert.strictEqual(rows[2].price, 145.95);
+});
+
+console.log('Rebuilding lines from OCR word positions');
+test('names and prices read as separate blocks are put back on one line', () => {
+    const w = (text, x0, y0) => ({ text, bbox: { x0, y0, x1: x0 + 40, y1: y0 + 12 } });
+    // all names first, then all prices, as an OCR block split would deliver them
+    const words = [w('MAELK', 10, 100), w('RUGBROD', 10, 130), w('SMOR', 10, 160),
+                   w('12,95', 300, 101), w('21,50', 300, 131), w('18,00', 300, 160)];
+    const text = lib.linesFromWords(words);
+    assert.strictEqual(text.split('\n').length, 3);
+    const rows = lib.parseReceipt(text, '2026-10-26');
+    assert.strictEqual(rows.length, 3);
+    assert.strictEqual(rows[1].price, 21.5);
+    assert.strictEqual(lib.linesFromWords([]), '');
+});
+
+test('a cash line misread by one letter is still skipped', () => {
+    const rows = lib.parseReceipt(['LIME 15,00', 'Kontan I 205,00', 'BYTTEPENGE 2,00'].join('\n'), '2026-10-26');
+    assert.strictEqual(rows.length, 1);
+    assert.strictEqual(rows[0].name, 'Lime');
+});
+
 console.log('\nResult: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed > 0 ? 1 : 0);

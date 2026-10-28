@@ -1,0 +1,88 @@
+Price parsing
+  PASS  comma decimal
+  PASS  dot decimal
+  PASS  thousands with comma decimal
+  PASS  negative price
+  PASS  not a number
+
+Single line parsing
+  PASS  simple Danish line
+  PASS  line with kr suffix
+  PASS  leading quantity "2 x"
+  PASS  trailing quantity "3 x 5,00 15,00"
+  PASS  leading item code removed
+  PASS  tax flag letter after price tolerated
+
+Lines that must be ignored
+  PASS  ignores "I ALT 245,60"
+  PASS  ignores "TOTAL 245.60"
+  PASS  ignores "MOMS 49,12"
+  PASS  ignores "Dankort 245,60"
+  PASS  ignores "KONTANT 300,00"
+  PASS  ignores "BYTTEPENGE 54,40"
+  PASS  ignores "Rabat -5,00"
+  PASS  ignores "PANT 1,00"
+  PASS  ignores "Tak for besøget"
+  PASS  ignores "CVR 12345678"
+  PASS  ignores "12:45"
+  PASS  ignores "---------"
+  PASS  ignores "Netto"
+  PASS  ignores ""
+  PASS  ignores negative amounts
+  PASS  ignores zero price
+
+Category guessing
+  PASS  Letmælk -> Dairy
+  PASS  Yoghurt -> Dairy
+  PASS  Økologiske æg -> Dairy
+  PASS  Mozzarella -> Dairy
+  PASS  Kyllingebryst -> Meat & Fish
+  PASS  Hakket oksekød -> Meat & Fish
+  PASS  Laks -> Meat & Fish
+  PASS  Rugbrød -> Bread & Bakery
+  PASS  Rundstykker -> Bread & Bakery
+  PASS  Bananer -> Produce
+  PASS  Agurk -> Produce
+  PASS  Gulerødder -> Produce
+  PASS  Hakkede tomater -> Canned Goods
+  PASS  Kidneybønner -> Canned Goods
+  PASS  Tun i vand -> Canned Goods
+  PASS  Frosne grøntsager -> Frozen
+  PASS  Pizza -> Frozen
+  PASS  Kost fiber pulver -> Other
+  PASS  Toiletpapir -> Other
+
+Expiry suggestion
+  PASS  dairy +7 days
+  PASS  month rollover
+  PASS  year rollover
+  PASS  unknown category falls back
+
+Full receipts
+  PASS  Danish receipt yields the 5 real products
+  PASS  English receipt
+  PASS  empty text gives no rows
+  PASS  garbage text gives no rows
+
+Open Food Facts category mapping
+  PASS  ["en:dairies","en:milks"] -> Dairy
+  PASS  ["en:frozen-foods","en:pizzas"] -> Frozen
+  PASS  ["en:canned-foods","en:vegetables"] -> Canned Goods
+  PASS  ["en:meats","en:sausages"] -> Meat & Fish
+  PASS  ["en:breads"] -> Bread & Bakery
+  PASS  ["en:fruits-and-vegetables-based-foods","en:fruits"] -> Produce
+  PASS  ["en:beverages","en:fruit-juices"] -> Other
+  PASS  ["en:snacks","en:chips-and-fries"] -> Other
+  PASS  [] -> Other
+  PASS  undefined -> Other
+Real receipt with unit price column
+  PASS  unit price column, weight prefix and cash lines are handled
+Receipt text as read by OCR
+  PASS  OCR misreads of 1X and the unit price column are handled
+  PASS  junk characters from OCR are trimmed from names
+  PASS  spaces inside OCR prices are repaired
+Rebuilding lines from OCR word positions
+  PASS  names and prices read as separate blocks are put back on one line
+  PASS  a cash line misread by one letter is still skipped
+
+Result: 70 passed, 0 failed

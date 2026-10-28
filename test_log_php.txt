@@ -1,0 +1,58 @@
+Scoring: PHP versus Python reference vectors
+  PASS  vector file loaded
+  PASS  dairy_fallback_size1
+  PASS  dairy_fallback_size2
+  PASS  dairy_fallback_size4
+  PASS  canned_fallback_size1_far_expiry
+  PASS  canned_fallback_size3_near_expiry
+  PASS  produce_two_items_still_fallback
+  PASS  produce_exactly_three_items_history
+  PASS  meat_history_slow_household
+  PASS  bread_history_fast_household
+  PASS  dairy_history_with_zero_day_use
+  PASS  expired_item_negative_days
+  PASS  expires_today
+  PASS  far_future
+  PASS  unknown_category_uses_defaults
+  PASS  history_window_truncates_to_20
+  PASS  min_history_1
+  PASS  min_history_5_not_met
+  PASS  fallback_exponent_half
+  PASS  fallback_exponent_zero
+  PASS  default_scale_double
+  PASS  default_scale_half
+  PASS  urgency_only_weights
+  PASS  mismatch_heavy_weights
+  PASS  baseline_lead_7
+  PASS  size_zero_treated_as_one
+
+Scoring: properties that must always hold
+  PASS  closer to expiry scores higher
+  PASS  dairy outranks canned goods at equal days remaining and equal usual time
+  PASS  score always stays between 0 and 10
+  PASS  household size ignored once history exists
+  PASS  fallback estimate shrinks with household size
+  PASS  baseline flags item 3 days from expiry
+  PASS  baseline does not flag item 4 days from expiry
+  PASS  baseline ignores already expired items
+
+Security helpers
+  PASS  csrf token generated
+  PASS  csrf accepts the right token
+  PASS  csrf rejects a wrong token
+  PASS  csrf rejects an empty token
+  PASS  e() escapes script tags
+  PASS  e() escapes quotes
+
+Validation helpers
+  PASS  valid date accepted
+  PASS  impossible date rejected
+  PASS  wrong format rejected
+  PASS  barcode of digits accepted
+  PASS  empty barcode accepted (optional)
+  PASS  barcode with letters rejected
+  PASS  barcode too short rejected
+  PASS  known category accepted
+  PASS  unknown category rejected
+
+Result: 49 passed, 0 failed
