@@ -88,8 +88,7 @@ include 'includes/header.php';
 ?>
 <h1>Import from a receipt</h1>
 <p class="note">A receipt shows what you bought and what it cost. It does not show when food will be eaten, and it
-   has no expiry dates. So you will check every row and set the expiry dates before anything is saved.
-   Photos are read inside your browser and are not uploaded.</p>
+   has no expiry dates. So you will check every row and set the expiry dates before anything is saved.</p>
 
 <?php if (!empty($errors)): ?>
     <div class="error-box"><ul>
