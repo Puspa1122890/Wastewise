@@ -1,4 +1,0 @@
-period,review days,baseline AUC,adaptive AUC (proposed),difference,"adaptive AUC, fallback only"
-first 30 days of a household's data,350,0.657,0.667,0.011,0.658
-days 30 to 59,429,0.694,0.719,0.025,0.677
-day 60 onwards,1885,0.663,0.733,0.070,0.674

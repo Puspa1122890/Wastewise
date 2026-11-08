@@ -1,6 +1,0 @@
-measure,baseline,adaptive,difference (adaptive - baseline),95% interval for difference
-Ranking AUC (primary),0.667,0.722,0.055,0.037 to 0.076
-Precision of alerts (matched volume),0.250,0.268,0.018,0.012 to 0.024
-Recall of later-wasted items,0.651,0.698,,
-False alarms (alerts on items later used),7780,7592,,
-Missed waste (later-wasted items not flagged),1388,1200,,
