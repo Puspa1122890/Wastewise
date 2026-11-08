@@ -1,0 +1,20 @@
+variant,horizon (days),baseline AUC,adaptive AUC,AUC difference,baseline precision,adaptive precision,precision difference
+proposed design (reference),7,0.667,0.722,0.055,0.250,0.268,0.018
+min history 1 item,7,0.667,0.726,0.059,0.250,0.268,0.019
+min history 2 items,7,0.667,0.725,0.057,0.250,0.268,0.019
+min history 5 items,7,0.667,0.714,0.046,0.250,0.265,0.016
+min history 10 items,7,0.667,0.703,0.035,0.250,0.262,0.013
+never use own history (fallback only),7,0.667,0.672,0.005,0.250,0.253,0.004
+fallback ignores household size (exponent 0),7,0.667,0.724,0.057,0.250,0.268,0.018
+fallback divides by sqrt(size) (exponent 0.5),7,0.667,0.723,0.056,0.250,0.268,0.018
+default days x 0.5,7,0.667,0.721,0.053,0.250,0.266,0.017
+default days x 2,7,0.667,0.725,0.058,0.250,0.268,0.019
+weights: urgency only (0.4/0.2/0.4 -> 1/0/0),7,0.667,0.667,0.000,0.250,0.250,0.000
+"weights: urgency + category (2/3, 1/3, 0)",7,0.667,0.626,-0.041,0.250,0.242,-0.008
+"weights: no category (0.5, 0, 0.5)",7,0.667,0.738,0.071,0.250,0.271,0.021
+weights: equal thirds,7,0.667,0.704,0.036,0.250,0.262,0.013
+"weights: mismatch heavy (0.2, 0.2, 0.6)",7,0.667,0.735,0.067,0.250,0.273,0.024
+candidate horizon 3 days,3,0.604,0.650,0.047,n/a,n/a,n/a
+candidate horizon 5 days,5,0.644,0.695,0.051,0.249,0.263,0.014
+candidate horizon 10 days,10,0.668,0.736,0.068,0.253,0.272,0.019
+candidate horizon 14 days,14,0.636,0.709,0.073,0.254,0.272,0.018

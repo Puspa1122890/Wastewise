@@ -1,0 +1,5 @@
+household size,households,baseline AUC,adaptive AUC (proposed),difference,"adaptive AUC, fallback only, divides by size","adaptive AUC, fallback only, ignores size"
+1 person,8,0.650,0.681,0.031,0.652,0.652
+2 people,14,0.684,0.724,0.040,0.693,0.699
+3 people,5,0.652,0.759,0.106,0.638,0.697
+4 or more,13,0.665,0.755,0.090,0.672,0.708
