@@ -230,6 +230,132 @@
         return 'Other';
     }
 
+
+    // ---- Expiry date from a photo of the package ----------------------------
+    // Reads the text found by OCR and picks the most likely expiry date.
+    // Dates are read day first (12.11.2026 is 12 November 2026), as in Denmark.
+    // A date after a word such as "best before" or "mindst holdbar til" wins.
+    // Otherwise the latest date is used, because a packing date comes first.
+    // The user always checks the result before saving.
+    var MONTH_NUMBERS = {
+        jan: 1, feb: 2, mar: 3, apr: 4, may: 5, maj: 5, jun: 6, jul: 7,
+        aug: 8, sep: 9, sept: 9, oct: 10, okt: 10, nov: 11, dec: 12
+    };
+    var EXPIRY_WORDS = /(best before|best by|bedst før|bedst for|use by|exp|expiry|mindst holdbar til|mht|holdbar til|sidste anvendelsesdato|bb)\W{0,3}$/i;
+
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+    function validDate(y, m, d) {
+        if (y < 2000 || y > 2100 || m < 1 || m > 12 || d < 1) { return false; }
+        return d <= new Date(Date.UTC(y, m, 0)).getUTCDate();
+    }
+
+    function fixOcrDigits(text) {
+        // OCR often reads 0 as O and 1 as l or I inside a date.
+        return String(text).replace(/\b[0-9OoIl]{1,4}(?:[.\/\-][0-9OoIl]{1,4}){1,2}\b/g, function (t) {
+            return t.replace(/[Oo]/g, '0').replace(/[Il]/g, '1');
+        });
+    }
+
+    function fullYear(s) {
+        var n = parseInt(s, 10);
+        return s.length === 2 ? 2000 + n : n;
+    }
+
+    function parseExpiryDate(rawText, today) {
+        var text = fixOcrDigits(String(rawText || '').replace(/[\r\n\t]+/g, ' '));
+        var now = today ? new Date(today + 'T00:00:00Z') : new Date();
+        var todayIso = now.getUTCFullYear() + '-' + pad2(now.getUTCMonth() + 1) + '-' + pad2(now.getUTCDate());
+        var found = [];
+        var re, m;
+
+        function overlaps(a, b) {
+            return found.some(function (f) { return a < f.end && b > f.start; });
+        }
+        function add(m, start, end, y, mo, d, extra) {
+            if (!validDate(y, mo, d) || overlaps(start, end)) { return; }
+            var c = { start: start, end: end, y: y, m: mo, d: d, text: m.trim(),
+                      keyword: EXPIRY_WORDS.test(text.slice(Math.max(0, start - 25), start)),
+                      monthOnly: false, yearGuessed: false };
+            for (var k in extra) { if (extra.hasOwnProperty(k)) { c[k] = extra[k]; } }
+            c.iso = c.y + '-' + pad2(c.m) + '-' + pad2(c.d);
+            found.push(c);
+        }
+
+        // 2026-11-12
+        re = /(^|\D)(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/g;
+        while ((m = re.exec(text)) !== null) {
+            var s0 = m.index + m[1].length;
+            add(m[0].slice(m[1].length), s0, re.lastIndex, +m[2], +m[3], +m[4], {});
+        }
+        // 12.11.2026, 12/11/26, 12-11-2026
+        re = /(^|\D)(\d{1,2})\s{0,2}[.,:;\/\-]\s{0,2}(\d{1,2})\s{0,2}[.,:;\/\-]\s{0,2}(\d{4}|\d{2})(?!\d)/g;
+        while ((m = re.exec(text)) !== null) {
+            add(m[0].slice(m[1].length), m.index + m[1].length, re.lastIndex, fullYear(m[4]), +m[3], +m[2], {});
+        }
+        // 12 NOV 2026, 12 Nov 26, 12.NOV.2026, 12 OKT
+        re = /(^|\D)(\d{1,2})\s*[ .\-\/]?\s*([A-Za-z]{3,4})\.?(?:\s*[ .\-\/,]?\s*(\d{4}|\d{2})(?!\d))?/g;
+        while ((m = re.exec(text)) !== null) {
+            var mon = MONTH_NUMBERS[m[3].toLowerCase()];
+            if (!mon) { continue; }
+            var y = m[4] ? fullYear(m[4]) : null, guessed = false;
+            if (y === null) {
+                y = now.getUTCFullYear();
+                if (validDate(y, mon, +m[2]) && y + '-' + pad2(mon) + '-' + pad2(+m[2]) < todayIso) { y += 1; }
+                guessed = true;
+            }
+            add(m[0].slice(m[1].length), m.index + m[1].length, m.index + m[0].length, y, mon, +m[2], { yearGuessed: guessed });
+        }
+        // 06 10 2016 (spaces only, four digit year, so it is not mistaken for other numbers)
+        re = /(^|\D)(\d{1,2})\s{1,2}(\d{1,2})(?:\s{1,2}|\s{0,2}[.,:;\/\-]\s{0,2})(20\d{2})(?!\d)/g;
+        while ((m = re.exec(text)) !== null) {
+            add(m[0].slice(m[1].length), m.index + m[1].length, re.lastIndex, +m[4], +m[3], +m[2], {});
+        }
+        // AUG 28 26, Aug 28 2026 (month, day, year: common on US packaging)
+        re = /(^|[^A-Za-z])([A-Za-z]{3,4})\.?\s{1,3}(\d{1,2})\s{1,3}(\d{4}|\d{2})(?!\d)/g;
+        while ((m = re.exec(text)) !== null) {
+            var mon3 = MONTH_NUMBERS[m[2].toLowerCase()];
+            if (!mon3) { continue; }
+            add(m[0].slice(m[1].length), m.index + m[1].length, re.lastIndex, fullYear(m[4]), mon3, +m[3], {});
+        }
+        // NOV 2026, Nov 26 (month and year only: use the last day of the month)
+        re = /(^|[^A-Za-z])([A-Za-z]{3,4})\.?\s*[ .\-\/,]?\s*(\d{4}|\d{2})(?!\d)/g;
+        while ((m = re.exec(text)) !== null) {
+            var mon2 = MONTH_NUMBERS[m[2].toLowerCase()];
+            if (!mon2) { continue; }
+            var yy = fullYear(m[3]);
+            add(m[0].slice(m[1].length), m.index + m[1].length, re.lastIndex, yy, mon2,
+                new Date(Date.UTC(yy, mon2, 0)).getUTCDate(), { monthOnly: true, shortYear: m[3].length === 2 });
+        }
+        // 11/2026 (month and year only). Not part of a longer date such as 31.02.2026.
+        re = /(?<!\d\s{0,2}[.,:;\/\-]\s{0,2})(?<!\d)(\d{1,2})[.\/\-](\d{4})(?!\d)/g;
+        while ((m = re.exec(text)) !== null) {
+            var mm = +m[1], y4 = +m[2];
+            if (mm < 1 || mm > 12) { continue; }
+            add(m[0], m.index, re.lastIndex, y4, mm,
+                new Date(Date.UTC(y4, mm, 0)).getUTCDate(), { monthOnly: true });
+        }
+
+        // A month with a two digit year ("AUG 29") is too easily a misread day,
+        // so it is only trusted after a word such as "best before".
+        found = found.filter(function (f) { return !(f.monthOnly && f.shortYear && !f.keyword); });
+        if (found.length === 0) { return { iso: null, text: '', count: 0, all: [] }; }
+        found.sort(function (a, b) { return a.start - b.start; });
+        var withWord = found.filter(function (f) { return f.keyword; });
+        var pick;
+        if (withWord.length > 0) {
+            pick = withWord[0];
+        } else {
+            pick = found.reduce(function (best, f) { return f.iso > best.iso ? f : best; }, found[0]);
+        }
+        var all = [], seenIso = {};
+        found.slice().sort(function (a, b) { return a.iso < b.iso ? -1 : 1; }).forEach(function (f) {
+            if (!seenIso[f.iso]) { seenIso[f.iso] = true; all.push({ iso: f.iso, text: f.text }); }
+        });
+        return { all: all, iso: pick.iso, text: pick.text, count: found.length, keyword: pick.keyword,
+                 monthOnly: pick.monthOnly, yearGuessed: pick.yearGuessed };
+    }
+
     return {
         SHELF_LIFE_DAYS: SHELF_LIFE_DAYS,
         parsePrice: parsePrice,
@@ -238,6 +364,7 @@
         linesFromWords: linesFromWords,
         guessCategory: guessCategory,
         defaultExpiry: defaultExpiry,
-        categoryFromOffTags: categoryFromOffTags
+        categoryFromOffTags: categoryFromOffTags,
+        parseExpiryDate: parseExpiryDate
     };
 }));

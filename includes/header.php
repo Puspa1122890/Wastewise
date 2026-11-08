@@ -20,6 +20,9 @@ $logged_in = isset($_SESSION['user_id']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo e($page_title); ?> - WasteWise</title>
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>

@@ -196,6 +196,12 @@ include 'includes/header.php';
             <label>Expiry date
                 <input type="date" name="expiry_date" value="<?php echo e($old['expiry_date']); ?>" required>
             </label>
+            <div class="photo-date">
+                <label>Or take a photo of the printed date
+                    <input type="file" id="expiry-photo" accept="image/*" capture="environment">
+                </label>
+                <p class="hint" id="expiry-photo-status" role="status">The date is read on your device and filled in above. Always check it.</p>
+            </div>
         </div>
         <button type="submit">Add product</button>
     </form>
@@ -285,4 +291,6 @@ include 'includes/header.php';
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="assets/js/wastewise_lib.js"></script>
 <script src="assets/js/barcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="assets/js/expiry_photo.js"></script>
 <?php include 'includes/footer.php'; ?>

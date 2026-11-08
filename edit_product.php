@@ -119,10 +119,19 @@ include 'includes/header.php';
         <label>Total price paid (kr) <input type="number" name="price" step="0.01" min="0" value="<?php echo e($f['price']); ?>"></label>
         <label>Purchase date <input type="date" name="purchase_date" max="<?php echo date('Y-m-d'); ?>" value="<?php echo e($f['purchase_date']); ?>" required></label>
         <label>Expiry date <input type="date" name="expiry_date" value="<?php echo e($f['expiry_date']); ?>" required></label>
+        <div class="photo-date">
+            <label>Or take a photo of the printed date
+                <input type="file" id="expiry-photo" accept="image/*" capture="environment">
+            </label>
+            <p class="hint" id="expiry-photo-status" role="status">The date is read on your device and filled in above. Always check it.</p>
+        </div>
         <div class="button-row">
             <button type="submit">Save changes</button>
             <a href="products.php" class="button-link secondary">Cancel</a>
         </div>
     </form>
 </div>
+<script src="assets/js/wastewise_lib.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="assets/js/expiry_photo.js"></script>
 <?php include 'includes/footer.php'; ?>
