@@ -1,78 +1,100 @@
 # WasteWise
 
-A household web system that ranks food by waste risk using an adaptive score, and compares it with a
-fixed-date reminder baseline. Student project (PHP, MySQL, HTML/CSS/JavaScript).
+An Adaptive Household Food Expiry Risk-Prioritisation and Waste Analytics System.
+Final year project, BSc Computer Science (De Montfort University, taught at Niels Brock).
+Student: Puspa Bhujel (P2863762). Supervisor: Eugene Louis Batie Badzongoly.
 
-The system supports household decisions about what to use first. It does **not** judge whether food
-is safe to eat.
+WasteWise is a household web system (PHP 8, MySQL, HTML/CSS/JavaScript). It ranks food by an adaptive
+waste-risk score and compares that ranking with a fixed-date reminder baseline. It supports household
+decisions about what to use first. It does **not** judge whether food is safe to eat.
 
-## Quick start (XAMPP)
+Live site: https://wastewise-puspa.infinityfree.io (free host, for demonstration only)
 
-1. Start Apache and MySQL. Copy this folder to `C:\xampp\htdocs\Wastewise`.
-2. phpMyAdmin > Import > `wastewise_db.sql` (this resets all data).
-3. Open `http://localhost/Wastewise/test_connection.php`, then `register.php`.
+## Requirements
 
-More options (Docker, public hosting) are in `docs/DEPLOYMENT.md`.
+- PHP 8.2 or later with PDO MySQL, and MySQL or MariaDB (XAMPP provides both)
+- A web browser. Barcode and receipt features need an internet connection (see below)
+- Optional, for the tests and the evaluation: Node.js 18+ and Python 3.10+
 
-## What is in the folder
+## Install and run (XAMPP, the main way)
+
+1. Start Apache and MySQL in the XAMPP control panel.
+2. Copy this folder to `C:\xampp\htdocs\Wastewise`.
+3. Open phpMyAdmin, choose **Import**, select `wastewise_db.sql` and click Go.
+   This creates the database `wastewise_db` and all tables, and resets any existing data.
+4. Open `http://localhost/Wastewise/register.php` and create an account. A household is created for you.
+   Another account can join it with the invite code shown on the dashboard.
+
+The default settings (`root`, empty password) suit XAMPP. On a host, set the environment variables
+`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` and `APP_ENV=production`, or edit
+`includes/config.php`. Do not commit real passwords.
+
+Docker is also supported: `docker compose up --build`, then open `http://localhost:8080`.
+More detail is in `docs/DEPLOYMENT.md`.
+
+## Features
+
+- Accounts with hashed passwords, CSRF tokens and login throttling; households shared by invite code
+- Product management with category, purchase date, expiry date, quantity and price
+- Adaptive waste-risk score (0 to 10) and fixed-date baseline alert, shown side by side
+- Outcome recording: used, thrown away (with a date) or unknown; expired items wait for confirmation
+- Summary page and activity log
+- Receipt import (photo read in the browser with Tesseract.js, or pasted text) with a review step
+- Barcode scanning with an Open Food Facts lookup
+- Expiry date reader from a photo of the printed date. It reads clear labels but often fails on
+  dot-matrix prints, and then the date is typed by hand
+- Anonymous CSV export of a household's data for the evaluation
+- Pages resize for phone browsers. Installing it as a phone app is planned, not done
+
+## Folder guide
 
 | Path | Purpose |
 |---|---|
-| `register.php`, `login.php`, `logout.php` | Accounts (hashed passwords, CSRF tokens, login throttling) |
-| `dashboard.php` | Household info, invite code, household size, highest-risk items |
-| `products.php` | Add (manual or barcode), list with adaptive risk and fixed-date alert, confirm expired items |
-| `confirm_outcome.php` | Record used / thrown away (with the real date) / unknown |
-| `edit_product.php`, `delete_product.php` | Edit and remove items |
-| `join_household.php` | Join another household by invite code |
-| `import_receipt.php` | Receipt photo (OCR) or pasted text to reviewed rows |
-| `activity_log.php`, `summary.php` | Visible history; recorded used / thrown-away values with a chart |
-| `export_dataset.php` | Anonymous CSV of the household's data for the evaluation |
-| `includes/scoring.php` | The scoring engine (pure functions plus database helpers) |
-| `includes/security.php`, `config.php` | CSRF, escaping, throttling, sessions, settings |
-| `assets/js/` | Receipt parser and category mapping, barcode scanner, receipt page |
-| `evaluation/` | Simulator, evaluation harness, its tests, and generated results |
-| `tests/` | PHP and Node test runners and the shared scoring vectors |
-| `docs/` | Evaluation protocol, design notes, security notes, test plan, usability protocol, deployment |
+| `register.php`, `login.php`, `logout.php` | Accounts |
+| `dashboard.php` | Household, invite code, household size, highest-risk items |
+| `products.php`, `edit_product.php`, `delete_product.php` | Product management, ranking, expired-item confirmation |
+| `confirm_outcome.php` | Record used / thrown away / unknown |
+| `join_household.php` | Join a household by invite code |
+| `import_receipt.php` | Receipt photo or pasted text to reviewed rows |
+| `activity_log.php`, `summary.php` | History and recorded totals |
+| `export_dataset.php` | Anonymous CSV export |
+| `includes/` | Scoring engine, security helpers, settings, page header and footer |
+| `assets/js/` | Receipt parser, expiry date reader, barcode scanner |
+| `wastewise_db.sql` | Database script (use this one). `schema_v2_upgrade.sql` only upgrades an older database |
+| `evaluation/` | Simulator, evaluation scripts, tests, the simulated data set and the results |
+| `tests/` | PHP, JavaScript and shared scoring test files |
+| `docs/` | Evaluation protocol, design and security notes, test plan, usability protocol, deployment |
 
-## Running the tests
+## Tests
 
 ```
-php tests/run_tests.php                  # PHP scoring vs independent Python, security helpers
-node tests/receipt_parser_test.js        # receipt parsing and category mapping
-python3 evaluation/test_evaluation.py    # evaluation has no leakage (includes label-shuffle test)
+php tests/run_tests.php                  # 49 checks: scoring against an independent Python copy, security helpers
+node tests/receipt_parser_test.js        # 70 checks: receipt parsing, category guessing, expiry suggestion
+node tests/expiry_date_test.js           # 21 checks: expiry date reader
+python3 evaluation/test_evaluation.py    # 12 checks: evaluation code, including the label-shuffle test
 ```
 
-## Status against the 16 objectives in Chapter 1
+All four passed on the submitted code.
 
-"Checked here" means I ran it in a Python/Node environment. **PHP could not be run where this was built**,
-so every PHP page is written but **not yet executed**. Run the PHP tests and the manual tests in
-`docs/TEST_PLAN.md` first, and fix anything that fails.
+## Reproducing the evaluation
 
-| # | Objective | Where | Status |
-|---|---|---|---|
-| 1 | Literature review | Thesis Chapter 2 | Writing task, not software |
-| 2 | Adaptive score | `includes/scoring.php` | Written. Python twin checked here; PHP parity needs `tests/run_tests.php` |
-| 3 | Fixed-date baseline | `includes/scoring.php`, shown in `products.php` | As above |
-| 4 | OCR receipt import | `import_receipt.php`, `assets/js/` | Parser checked here (64 tests). OCR engine, browser page and server import not run |
-| 5 | Barcode scanning | `assets/js/barcode.js` | Category mapping checked here. Camera, scanner library and the live lookup not run |
-| 6 | Relational database | `wastewise_db.sql` | Written, not imported here |
-| 7 | Full product management | `products.php` and related | Written, not run |
-| 8 | Household sharing, invite code | `join_household.php`, `dashboard.php` | Written, not run |
-| 9 | Visible savings/waste dashboard | `summary.php` | Written, not run. Wording is "recorded", not "saved" |
-| 10 | Visible activity log | `activity_log.php` | Written, not run |
-| 11 | Success-criteria definitions | `docs/EVALUATION_PROTOCOL.md` | Done |
-| 12 | Evaluation dataset and comparison | `evaluation/` | **Run and checked here** on simulated data (12 tests incl. leakage check) |
-| 13 | Security practices | `includes/security.php`, `docs/SECURITY_NOTES.md` | Written, not run. 12 security tests listed in the test plan |
-| 14 | Ethics screening | You | **Your action.** Needed before any test with other people |
-| 15 | Live deployment | `Dockerfile`, `docs/DEPLOYMENT.md` | Instructions only. Needs your hosting account |
-| 16 | Testing and reflection | `tests/`, `docs/TEST_PLAN.md`, `docs/USABILITY_TEST.md` | Plans and automated tests ready. Running them and recording evidence is yours |
+```
+cd evaluation
+python3 simulate.py --out data/simulated_items.csv
+python3 evaluate.py --data data/simulated_items.csv --out results --simulated --replications 20
+python3 test_evaluation.py
+```
 
-## Honest limits
+The simulator uses seed 1 and the replications use seeds 1 to 20. The full settings are in Appendix B
+of the report and in `docs/EVALUATION_PROTOCOL.md`.
 
-- The evaluation results in `evaluation/results/` come from **simulated** households. They are a system
-  check, not evidence about real homes (see `docs/EVALUATION_PROTOCOL.md`).
-- Category weights and default usage times are author-assigned assumptions, not sourced facts.
-- The simulated sensitivity tests found that the category-weight term and the "divide by household size"
-  fallback did **not** help. These are reported in `docs/DESIGN_NOTES.md`. The design was fixed
-  beforehand, so any change now is a post-hoc change and must be declared as one.
+## Limits
+
+- The evaluation uses **simulated** households. It is a system check, not evidence about real homes.
+- Category weights and default usage times are my own design choices, not sourced facts.
+- The simulated tests found that the category weights and the household-size fallback did not help.
 - Receipts show what was bought, not when or how much was eaten.
+- Barcode lookup, receipt reading and the chart need an internet connection (Open Food Facts,
+  Tesseract.js, the scanner library and the chart library load from public servers).
+- No email verification, password reset, content security policy or two factor authentication.
+- There is no account deletion and no automatic deletion of old login attempts.
