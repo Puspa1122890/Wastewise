@@ -7,9 +7,8 @@
 3. Open phpMyAdmin, click **Import**, choose `wastewise_db.sql`, click Go.
    (This erases and recreates every table. Use `schema_v2_upgrade.sql` instead only if you must keep
    existing data.)
-4. Open `http://localhost/Wastewise/test_connection.php`. All tables should say "found".
-5. Open `http://localhost/Wastewise/register.php` and create an account.
-6. When setup is done, delete `test_connection.php`.
+4. Open `http://localhost/Wastewise/register.php` and create an account. If the page shows a database
+   error, check the settings in `includes/config.php` and that the import in step 3 finished.
 
 The default settings (`root`, empty password) suit XAMPP. Change them for anything public.
 
@@ -34,7 +33,6 @@ Checklist:
       (or edit `includes/config.php` if the host has no environment variables).
 - [ ] Upload the project. Do **not** publish `tests/`, `evaluation/`, `docs/` or `*.sql` (the supplied
       `.htaccess` files block them on Apache, and `.dockerignore` keeps them out of the image).
-- [ ] Delete `test_connection.php`.
 - [ ] Use **HTTPS**. Camera barcode scanning only works on HTTPS or localhost, and session cookies
       are marked Secure under HTTPS.
 - [ ] Register a test account and run FT-01, FT-06, FT-09 and ST-05 from `docs/TEST_PLAN.md`.
